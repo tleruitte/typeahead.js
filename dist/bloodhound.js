@@ -6,7 +6,7 @@
 
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
-        define("bloodhound", [ "jquery" ], function(a0) {
+        define([ "jquery" ], function(a0) {
             return root["Bloodhound"] = factory(a0);
         });
     } else if (typeof exports === "object") {
@@ -614,6 +614,7 @@
             this.url = o.url;
             this.prepare = o.prepare;
             this.transform = o.transform;
+            this.indexResponse = o.indexResponse;
             this.transport = new Transport({
                 cache: o.cache,
                 limiter: o.limiter,
@@ -656,6 +657,7 @@
                 datumTokenizer: null,
                 queryTokenizer: null,
                 sufficient: 5,
+                indexRemote: false,
                 sorter: null,
                 local: [],
                 prefetch: null,
@@ -806,6 +808,7 @@
             this.sorter = o.sorter;
             this.identify = o.identify;
             this.sufficient = o.sufficient;
+            this.indexRemote = o.indexRemote;
             this.local = o.local;
             this.remote = o.remote ? new Remote(o.remote) : null;
             this.prefetch = o.prefetch ? new Prefetch(o.prefetch) : null;
@@ -875,6 +878,8 @@
             },
             search: function search(query, sync, async) {
                 var that = this, local;
+                sync = sync || _.noop;
+                async = async || _.noop;
                 local = this.sorter(this.index.search(query));
                 sync(this.remote ? local.slice() : local);
                 if (this.remote && local.length < this.sufficient) {
@@ -890,7 +895,8 @@
                             return that.identify(r) === that.identify(l);
                         }) && nonDuplicates.push(r);
                     });
-                    async && async(nonDuplicates);
+                    that.indexRemote && that.add(nonDuplicates);
+                    async(nonDuplicates);
                 }
             },
             all: function all() {

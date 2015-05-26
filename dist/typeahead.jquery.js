@@ -6,7 +6,7 @@
 
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
-        define("typeahead.js", [ "jquery" ], function(a0) {
+        define([ "jquery" ], function(a0) {
             return factory(a0);
         });
     } else if (typeof exports === "object") {
@@ -807,7 +807,6 @@
                     suggestions = suggestions || [];
                     if (!canceled && rendered < that.limit) {
                         that.cancel = $.noop;
-                        rendered += suggestions.length;
                         that._append(query, suggestions.slice(0, that.limit - rendered));
                         that.async && that.trigger("asyncReceived", query);
                     }
@@ -921,6 +920,7 @@
                 return this.$node.hasClass(this.classes.open);
             },
             open: function open() {
+                this.$node.scrollTop(0);
                 this.$node.addClass(this.classes.open);
             },
             close: function close() {
@@ -1450,7 +1450,7 @@
                     return query;
                 } else {
                     ttEach(this, function(t) {
-                        t.setVal(newVal);
+                        t.setVal(_.toStr(newVal));
                     });
                     return this;
                 }
